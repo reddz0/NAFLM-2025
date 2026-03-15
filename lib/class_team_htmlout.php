@@ -21,7 +21,7 @@ class Team_HTMLOUT extends Team
 				$where[] = "f_lid = $sel_node_id";
 			}
 			$where = (count($where) > 0) ? 'WHERE '.implode(' AND ', $where) : '';
-			$queryCnt = "SELECT COUNT(*) FROM teams $where";
+			$queryCnt = "SELECT COUNT(*) FROM teams JOIN races ON teams.f_race_id = races.race_id $where";
 			$queryGet = 'SELECT '.preg_replace('/\_RRP/', 'team_id', $fields).' FROM teams JOIN races ON teams.f_race_id = races.race_id '.$where.' ORDER BY tname ASC';
 		} else {
 			$q = "SELECT $fields FROM matches, teams, races, tours, divisions WHERE matches._RRP = teams.team_id AND teams.f_race_id = races.race_id AND matches.f_tour_id = tours.tour_id AND tours.f_did = divisions.did ";
@@ -198,7 +198,32 @@ class Team_HTMLOUT extends Team
 				status(!$exitStatus, $exitStatus ? Player::$T_CREATE_ERROR_MSGS[$exitStatus] : null);
 				break;
 			case 'hire_journeyman': status($p->hireJourneyman()); break;
-			case 'fire_player':     status($p->sell()); break;
+			case 'fire_player':
+				// Check minimum TV before allowing player to be fired
+				$canFire = true;
+				$errorMsg = '';
+				
+				// Check minimum TV setting
+				if (isset($rules['min_tv']) && $rules['min_tv'] > 0) {
+					$minTV = $rules['min_tv'];
+					
+					// Calculate what TV would be after firing this player
+					$playerToFire = new Player($_POST['player']);
+					$refund = $playerToFire->value * $rules['player_refund'];
+					$projectedTV = $team->tv - $playerToFire->value + $refund;
+					
+					if ($projectedTV < $minTV) {
+						$canFire = false;
+						$errorMsg = "Cannot fire player: Team value would drop below league minimum of " . ($minTV/1000) . "k (projected TV after firing: " . ($projectedTV/1000) . "k)";
+					}
+				}
+				
+				if ($canFire) {
+					status($p->sell());
+				} else {
+					status(false, $errorMsg);
+				}
+				break;
 			case 'unbuy_player':    status($p->unbuy()); break;
 			case 'rename_player':   status($p->rename($_POST['name'])); break;
 			case 'renumber_player': status($p->renumber($_POST['number'])); break;
@@ -331,7 +356,17 @@ class Team_HTMLOUT extends Team
 					else                                                    $type = 'C'; # Assume it's a characteristic.
 					status($p->rmSkill($type, ($type == 'C') ? (int) str_replace('ach_','',$_POST['skill']) : (int) $_POST['skill']));
 					break;
-			   case 'ff':
+				case 'manage_hatred':
+					$p = new Player((int)$_POST['player']);
+					if ($_POST['hatred_action'] === 'remove') {
+						status($p->removeHatred($_POST['race_id']));
+					} elseif ($_POST['hatred_action'] === 'change') {
+						status($p->changeHatred($_POST['race_id'], $_POST['new_race_id']));
+					} else {
+						status($p->addHatred($_POST['race_id']));
+					}
+					break;
+			    case 'ff':
 					status($team->setff_bought($_POST['amount']));
 					SQLTriggers::run(T_SQLTRIG_TEAM_DPROPS, array('obj' => T_OBJ_TEAM, 'id' => $team->team_id));
 					break;
@@ -1378,6 +1413,7 @@ class Team_HTMLOUT extends Team
 							'dval'              => $lng->getTrn($base.'/box_admin/dval'),
 							'extra_skills'      => $lng->getTrn($base.'/box_admin/extra_skills'),
 							'ach_skills'        => $lng->getTrn($base.'/box_admin/ach_skills'),
+							'manage_hatred' 	=> $lng->getTrn($base.'/box_admin/manageHatred'),
 							'ff'                => $lng->getTrn($base.'/box_admin/ff'),
 							'resetleague'       => $lng->getTrn($base.'/box_admin/resetleague'),
 							'resetrule'         => $lng->getTrn($base.'/box_admin/resetrule'),
@@ -1659,7 +1695,7 @@ class Team_HTMLOUT extends Team
 									<?php
 									break;
 								/***************
-								 * Remove achived skills
+								 * Remove achieved skills
 								 **************/
 								case 'ach_skills':
 									echo $lng->getTrn('profile/team/box_admin/desc/ach_skills');
@@ -1682,8 +1718,10 @@ class Team_HTMLOUT extends Team
 									<select name="skill">
 									<?php
 									foreach ($skillarray as $cat => $skills) {
+										if ($cat === 'E') continue;
 										echo "<OPTGROUP LABEL='$cat'>";
 										foreach ($skills as $id => $skill) {
+											//if (stripos($skill, 'hatred') !== false) continue;
 											echo "<option value='$id'>$skill</option>";
 										}
 										echo "</OPTGROUP>";
@@ -1701,6 +1739,50 @@ class Team_HTMLOUT extends Team
 									?>
 									</select>
 									<input type="hidden" name="type" value="ach_skills">
+									<?php
+									break;
+								/***************
+								 * Manage Player Hatred
+								 **************/
+								 case 'manage_hatred':
+									global $playerkeywordsarray;
+									echo $lng->getTrn('common/player').':<br>';
+									?>
+									<select name="player">
+									<?php
+									foreach ($players as $p) {
+										if (!$p->is_dead && !$p->is_sold) {
+											echo "<option value='$p->player_id'>$p->nr $p->name</option>\n";
+										}
+									}
+									?>
+									</select>
+									<br><br>
+									Action:<br>
+									<select name="hatred_action" onchange="document.getElementById('new_race_select').disabled = (this.value !== 'change');">
+										<option value="remove">Remove hatred of...</option>
+										<option value="change">Change hatred of...</option>
+										<option value="add">Add hatred of...</option>
+									</select>
+									<br><br>
+									Race:<br>
+									<select name="race_id">
+									<?php
+									foreach ($playerkeywordsarray['K'] as $kid => $kname) {
+										echo "<option value='$kid'>$kname</option>\n";
+									}
+									?>
+									</select>
+									<br><br>
+									Change to:<br>
+									<select name="new_race_id" id="new_race_select" disabled>
+									<?php
+									foreach ($playerkeywordsarray['K'] as $kid => $kname) {
+										echo "<option value='$kid'>$kname</option>\n";
+									}
+									?>
+									</select>
+									<input type="hidden" name="type" value="manage_hatred">
 									<?php
 									break;
 								/***************
@@ -1826,7 +1908,12 @@ class Team_HTMLOUT extends Team
 							}
 							?>
 							<br><br>
-							<input type="submit" name="button" value="OK" <?php echo ($DISABLE ? 'DISABLED' : '');?> >
+							<?php
+							$admin_confirm = array('manage_hatred');
+							?>
+							<input type="submit" name="button" value="OK" <?php echo ($DISABLE ? 'DISABLED' : '');?>
+								<?php if (in_array($_POST['menu_admintools'], $admin_confirm)) { echo "onClick=\"if(!confirm('".$lng->getTrn('common/confirm_box')."')){return false;}\""; } ?>
+							>
 						</form>
 					</div>
 				</div>
@@ -2097,6 +2184,14 @@ class Team_HTMLOUT extends Team
 				 **************/
 				case 'fire_player':
 					echo $lng->getTrn('profile/team/box_tm/desc/fire_player').' '.$rules['player_refund']*100 . "%.\n";
+					
+					// Get minimum TV setting
+					$minTV = 0;
+					if (isset($rules['min_tv']) && $rules['min_tv'] > 0) {
+						$minTV = $rules['min_tv'];
+						echo "<br><br><b>League Minimum TV: " . ($minTV/1000) . "k</b>";
+						echo "<br>Current Team TV: " . ($team->tv/1000) . "k";
+					}
 					?>
 					<hr><br>
 					<?php echo $lng->getTrn('common/player');?>:<br>
@@ -2119,27 +2214,47 @@ class Team_HTMLOUT extends Team
 						
 						// Determine if this player can be fired
 						$can_fire = false;
+						$reason = '';
 						
-						// Journeymen can always be fired
+						// Journeymen can always be fired (no restrictions)
 						if ($p->is_journeyman) {
 							$can_fire = true;
 						}
-						// Regular players: check global override or roster count
+						// Regular players: check global override, roster count, AND minimum TV
 						else {
-							// If global override is enabled, always allow firing
+							// If global override is enabled, allow firing (subject to min TV)
 							if ($rules['fireunder11'] == 1) {
 								$can_fire = true;
 							}
 							// Otherwise, only allow if team has more than 11 rostered players
 							else {
-								$can_fire = ($rostered_players > 11);
+								if ($rostered_players <= 11) {
+									$can_fire = false;
+									$reason = ' (would drop below 11 players)';
+								} else {
+									$can_fire = true;
+								}
+							}
+							
+							// Additional check for regular players: minimum TV
+							if ($can_fire && $minTV > 0) {
+								$refund = $p->value * $rules['player_refund'];
+								$projectedTV = $team->tv - $p->value + $refund;
+								
+								if ($projectedTV < $minTV) {
+									$can_fire = false;
+									$reason = ' (TV would drop below ' . ($minTV/1000) . 'k min)';
+								}
 							}
 						}
 						
-						// Only show player if they can be fired
+						// Show player if they can be fired, or show them disabled with reason
 						if ($can_fire) {
 							echo "<option value='$p->player_id'>" . ($rules['player_refund'] ? (($p->value/1000)*$rules['player_refund'])."k refund | " : "") . "$p->nr $p->name</option>\n";
 							$DISABLE = false;
+						} else if (!empty($reason)) {
+							// Show player as disabled with reason
+							echo "<option value='$p->player_id' disabled style='color: #999;'>" . "$p->nr $p->name$reason</option>\n";
 						}
 					}
 					?>
@@ -2711,7 +2826,7 @@ class Team_HTMLOUT extends Team
 		?>
 		<!-- Following HTML is from class_team_htmlout.php _about -->
 		<div class='tableResponsive'>
-		<table class='common'>
+		<table class='common teamAbout'>
 
 			<tr class='commonhead'>
 				<td><b><?php echo $lng->getTrn('profile/team/logo');?></b></td>

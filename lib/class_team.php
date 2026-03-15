@@ -68,11 +68,12 @@ class Team
     }
 
     public function mayBuyFF() {
-        global $rules;
-        setupGlobalVars(T_SETUP_GLOBAL_VARS__LOAD_LEAGUE_SETTINGS, array('lid' => $this->f_lid)); // Load correct $rules for league.
-        $this->mayBuyFF = ($rules['post_game_ff'] || $this->mv_played == 0 || $this->mv_played == $this->played_0);
-        return $this->mayBuyFF;
-    }
+		global $rules;
+		setupGlobalVars(T_SETUP_GLOBAL_VARS__LOAD_LEAGUE_SETTINGS, array('lid' => $this->f_lid));
+		$atCreation = ($this->mv_played == 0 || $this->mv_played == $this->played_0);
+		$this->mayBuyFF = ($rules['post_game_ff'] || $atCreation) && (!$atCreation || $this->ff_bought < 3);
+		return $this->mayBuyFF;
+	}
 
     public function mayBuyRR() {
         global $rules;

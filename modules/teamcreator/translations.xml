@@ -20,6 +20,7 @@
 <tooManyPos>Too many positionals for a Sevens team (limit is 4)</tooManyPos>
 <tooManyPlayers>Too many players, a team can have 16 players max</tooManyPlayers>
 <tooManySevensPlayers>Too many players, a Sevens team can have 11 players max</tooManySevensPlayers>
+<belowMinimumTV>Team value is below set league minimum</belowMinimumTV>
 <tooManyRR>Too many rerolls</tooManyRR>
 <tooManyFF>Too many fans</tooManyFF>
 <tooManyAc>Too many coaches</tooManyAc>

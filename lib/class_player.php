@@ -175,10 +175,45 @@ class Player
     }
     
     public function getHatred() {
-            $result = mysql_query("SELECT GROUP_CONCAT(hat) as hatred FROM match_data WHERE hat != 99 AND f_player_id = $this->player_id");
-            $row = mysql_fetch_row($result);
-            $this->hatred = empty($row[0]) ? array() : explode(',', $row[0]);
+		$result = mysql_query("SELECT GROUP_CONCAT(DISTINCT hat) as hatred FROM match_data WHERE hat != 99 AND f_player_id = $this->player_id");
+		$row = mysql_fetch_row($result);
+		$this->hatred = empty($row[0]) ? array() : explode(',', $row[0]);
     }
+	
+	public function removeHatred($race_id) {
+		$race_id = (int) $race_id;
+		return mysql_query("UPDATE match_data SET hat = 99 WHERE f_player_id = $this->player_id AND hat = $race_id");
+	}
+	
+	public function addHatred($race_id) {
+		$race_id = (int) $race_id;
+		// Find the most recent match where hat was not recorded (99)
+		$result = mysql_query("
+			SELECT f_match_id 
+			FROM match_data
+			WHERE f_player_id = $this->player_id 
+			AND hat = 99
+			ORDER BY f_match_id DESC
+			LIMIT 1
+		");
+		$row = mysql_fetch_row($result);
+		if (!$row) {
+			return false; // No unrecorded match found
+		}
+		$match_id = (int) $row[0];
+		return mysql_query("
+			UPDATE match_data 
+			SET hat = $race_id 
+			WHERE f_player_id = $this->player_id 
+			AND f_match_id = $match_id
+		");
+	}
+
+	public function changeHatred($old_race_id, $new_race_id) {
+		$old_race_id = (int) $old_race_id;
+		$new_race_id = (int) $new_race_id;
+		return mysql_query("UPDATE match_data SET hat = $new_race_id WHERE f_player_id = $this->player_id AND hat = $old_race_id");
+	}
     
     public function setChoosableSkills() {
         global $DEA, $skillarray, $skillcats, $IllegalSkillCombinations, $rules;

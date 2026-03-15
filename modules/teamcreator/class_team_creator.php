@@ -485,6 +485,17 @@ class TeamCreator implements ModuleInterface
 			$errors[] = $lng->getTrn('tooManyFF', 'TeamCreator') . " " . $fans . " vs " . $rules['max_fan_factor'];
 		}
 		
+		// Check minimum TV requirement (league-specific setting)
+		if (isset($rules['min_tv']) && $rules['min_tv'] > 0) {
+			$minTV = $rules['min_tv']; 
+			
+			// Calculate team TV (initial treasury - remaining treasury = money spent on team)
+			$teamTV = $init_treasury - $treasury;
+			
+			if ($teamTV < $minTV) {
+				$errors[] = $lng->getTrn('belowMinimumTV', 'TeamCreator') . ' (Minimum: ' . ($minTV/1000) . 'k, Your team: ' . ($teamTV/1000) . 'k)';
+			}
+		}
 
 		/* Actually create the team in the database */
 		if(sizeof($errors) == 0) {

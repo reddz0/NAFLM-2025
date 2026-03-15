@@ -429,6 +429,7 @@ For example, english is in <en-GB>, french in <fr-FR>, .......
             <addniggle>Add player niggle</addniggle>
             <removeMNG>Remove player MNG/Unretire</removeMNG>
             <removenegastat>Remove stat injuries</removenegastat>
+            <manageHatred>Manage player Hatred</manageHatred>
 
             <desc>
                 <unhire_journeyman> <![CDATA[ Regret permanently hiring a journeyman.<br> This only works on players from a 0-16 allowed position on your team's roster. ]]> </unhire_journeyman>
@@ -603,6 +604,7 @@ For example, english is in <en-GB>, french in <fr-FR>, .......
     <goblin>Goblin</goblin>
     <halfling>Halfling</halfling>
     <highelf>High Elf</highelf>
+    <highelftol>High Elf (Teams of Legend)</highelftol>
     <human>Human</human>
     <tombkings>Tomb Kings</tombkings>
     <lizardmen>Lizardmen</lizardmen>
@@ -727,7 +729,7 @@ For example, english is in <en-GB>, french in <fr-FR>, .......
     <highelflineman>High Elf Lineman</highelflineman>
     <highelfthrower>High Elf Thrower</highelfthrower>
     <highelfcatcher>High Elf Catcher</highelfcatcher>
-    <highelfblitzer>High Elf Blitzer </highelfblitzer>
+    <highelfblitzer>High Elf Blitzer</highelfblitzer>
 	<!-- Human -->
     <humanlineman>Human Lineman</humanlineman>
     <humancatcher>Human Catcher</humancatcher>
@@ -833,6 +835,10 @@ For example, english is in <en-GB>, french in <fr-FR>, .......
     <bretonnianknightcatcher>Bretonnian Knight Catcher</bretonnianknightcatcher>
     <bretonnianknightthrower>Bretonnian Knight Thrower</bretonnianknightthrower>
     <grailknight>Grail Knight</grailknight>
+    <!-- High Elves -->
+    <whitelion>White Lion</whitelion>
+    <phoenixwarrior>Phoenix Warrior</phoenixwarrior>
+    <dragonprince>Dragon Prince</dragonprince>
 	<!-- Dungeon Bowl Teams -->
 	<!-- College of Fire -->
 	<!-- College of Shadow -->

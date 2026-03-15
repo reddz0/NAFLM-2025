@@ -789,14 +789,42 @@ function sec_stars() {
             <div>
 		<?php	
 		$racestars = array(); 
-		foreach ($stars as $s => $d) {  
+		foreach ($stars as $s => $d) {
 		$tmp = new Star($d['id']);
 		$tmp->skills = skillsTrans($tmp->skills);    
 		$tmp->keywords = '('.keywordsTrans($tmp->keywords).')';    
 		$tmp->special = specialsTrans($tmp->special);   
 		$tmp->specialdesc = $lng->getTrn('specialrules/'.$tmp->specialdesc.'desc');
 		$tmp->teamrules = specialsTrans($tmp->teamrules);            
-		$tmp->races = racesTrans($tmp->races);            
+		$tmp->races = racesTrans($tmp->races);
+		// For reference page, show original cost from game data (not including mega star tax)
+		global $stars;
+		foreach ($stars as $starName => $starOrigData) {
+			if ($starOrigData['id'] == $d['id']) {
+				// Calculate original cost before mega star tax was applied
+				$originalCost = $starOrigData['cost'];
+				if (isset($rules['megastar_tax']) && $rules['megastar_tax'] > 0 && $starOrigData['megastar'] == 1) {
+					$originalCost -= $rules['megastar_tax']; // Remove the tax to show base cost
+				}
+				$tmp->cost = $originalCost;
+				break;
+			}
+		}
+		
+		// Check if star is banned or megastar is disabled or has mega star tax
+		$tmp->status = ''; // Default: available
+		if (isset($rules['banned_stars']) && !empty($rules['banned_stars'])) {
+			$bannedStarsArray = is_array($rules['banned_stars']) ? $rules['banned_stars'] : explode(',', $rules['banned_stars']);
+			if (in_array($d['id'], $bannedStarsArray)) {
+				$tmp->status = '<font color="red"><b>BANNED</b></font>';
+			}
+		}
+		if ($tmp->status == '' && $d['megastar'] == 1 && $rules['megastars'] == 1) {
+			$tmp->status = '<font color="orange"><b>MEGA STAR DISABLED</b></font>';
+		}
+		if ($tmp->status == '' && $d['megastar'] == 1 && isset($rules['megastar_tax']) && $rules['megastar_tax'] > 0) {
+			$tmp->status = '<font color="blue"><b>+' . ($rules['megastar_tax']/1000) . 'k Mega Star Tax</b></font>';
+		}
 		$racestars[] = $tmp;
 			if ($tmp->pa == 0) {       
 				$tmp->pa = '-';
@@ -820,12 +848,22 @@ function sec_stars() {
 			'av'     => array('desc' => $lng->getTrn('common/av'), 'suffix' => '+'),
 			'skills' => array('desc' => $lng->getTrn('common/skills'), 'nosort' => true),
 			'cost'   => array('desc' => $lng->getTrn('common/price'), 'kilo' => true, 'suffix' => 'k'),
+		);		
+		// Only show status column if banned stars, megastar restrictions, or mega star tax are active
+		$showStatus = false;
+		if ((isset($rules['banned_stars']) && !empty($rules['banned_stars'])) || 
+		    (isset($rules['megastars']) && $rules['megastars'] == 1) ||
+		    (isset($rules['megastar_tax']) && $rules['megastar_tax'] > 0)) {
+			$showStatus = true;
+			$fields['status'] = array('desc' => 'Status', 'nosort' => true);
+		}	
+		$fields = array_merge($fields, array(
 			'special' => array('desc' => $lng->getTrn('common/specialrule')),
 			'specialdesc' => array('desc' => $lng->getTrn('common/specialruledesc')),
 			//'races' => array('desc' => $lng->getTrn('common/playsfor'), 'nosort' => true),
 			'teamrules' => array('desc' => $lng->getTrn('common/playsfor'), 'nosort' => true),
 			'keywords' => array('desc' => $lng->getTrn('common/keywords'), 'nosort' => true),
-		);
+		));
 		HTMLOUT::sort_table(
 			$lng->getTrn('common/starlist'),
 			'index.php?section=stars',

@@ -142,7 +142,8 @@ class HTMLOUT
 			$fields,
 			array('+round','+date_created'),
 			(isset($_GET["sort$opts[GET_SS]"])) ? array((($_GET["dir$opts[GET_SS]"] == 'a') ? '+' : '-') . $_GET["sort$opts[GET_SS]"]) : array(),
-			$extra
+			$extra,
+			'matchesTable'
 		);
 	}
 	
@@ -1152,6 +1153,7 @@ class HTMLOUT
 				<li><a href="index.php?section=objhandler&type=1&obj=4&obj_id=29" >Gnome</a></li>
 				<li><a href="index.php?section=objhandler&type=1&obj=4&obj_id=6" >Goblin</a></li>
 				<li><a href="index.php?section=objhandler&type=1&obj=4&obj_id=7" >Halfling</a></li>
+				<li><a href="index.php?section=objhandler&type=1&obj=4&obj_id=31" >High Elf</a></li>
 				<li><a href="index.php?section=objhandler&type=1&obj=4&obj_id=9" >Human</a></li>
 				<li><a href="index.php?section=objhandler&type=1&obj=4&obj_id=27" >Imperial Nobility</a></li>
 				<li><a href="index.php?section=objhandler&type=1&obj=4&obj_id=28" >Khorne</a></li>
@@ -1249,7 +1251,7 @@ class HTMLOUT
 			<li><a href="handler.php?type=tournamentteam&obj=builder" >Tournament Team Builder</a></li>
 			<li><a href="handler.php?type=calculator" >Dice Probability Calculator</a></li>
 			<li><a href="https://assets.warhammer-community.com/eng_14-11_bloodbowl_faq_errata-ngh7bivuzu-vslz4fw2nm.pdf">BB2025 Latest FAQ & Errata</a></li>
-			<li><a href="https://www.thenaf.net/wp-content/uploads/2025/12/NAF-FAQ-for-BB2025_v20251222_A4.pdf">BB2025 NAF Tournament Clarifications</a></li>
+			<li><a href="https://www.thenaf.net/wp-content/uploads/2026/01/NAF-FAQ-for-BB2025_v20260127_A4.pdf">BB2025 NAF Tournament Clarifications</a></li>
 		</ul>
 	</li>  
 
@@ -1261,7 +1263,7 @@ class HTMLOUT
 	}
 	
 	// Prints an advanced sort table.
-	public static function sort_table($title, $lnk, array $objs, array $fields, array $std_sort, $sort = array(), $extra = array())	{
+	public static function sort_table($title, $lnk, array $objs, array $fields, array $std_sort, $sort = array(), $extra = array(), $tableClassName = 'tableResponsive')	{
 		/*
 			extra fields:
 				tableWidth  => CSS style width value
@@ -1309,7 +1311,7 @@ class HTMLOUT
 		$CP = count($fields);
 		?>
 		<!-- Following HTML from ./lib/class_htmlout.php sort_table-->
-		<div class='tableResponsive'>
+		<div class="<?php echo $tableClassName;?>">
 		<table class="common" <?php echo (array_key_exists('tableWidth', $extra)) ? "style='width: $extra[tableWidth];'" : '';?>>
 			<tr class="commonhead">
 				<td colspan="<?php echo $CP;?>"><b>

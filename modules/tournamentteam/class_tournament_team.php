@@ -447,7 +447,12 @@ class TournamentTeam implements ModuleInterface
                 $team_value += $rules['cost_apothecary'];
             }
         }
-        
+		
+        // Override Prayers to Nuffle cost for tournament (before calculating team value)
+		if (isset($inducements['Prayers to Nuffle'])) {
+			$inducements['Prayers to Nuffle']['cost'] = 10000; // Standard tournament cost
+		}
+
         // Add inducements
         if (isset($team_data['inducements'])) {
             foreach ($team_data['inducements'] as $ind_name => $qty) {

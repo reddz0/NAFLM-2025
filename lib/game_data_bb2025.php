@@ -44,8 +44,7 @@ define('T_RACE_IMPERIAL',  		27);
 define('T_RACE_KHORNE',  		28);
 define('T_RACE_GNOME',  		29);
 define('T_RACE_BRETONNIAN',  	30);
-//following reserved for GW future releases of teams of legend
-//define('T_RACE_HIGH_ELVES',  	31);
+define('T_RACE_HIGH_ELVES',  	31);
 
 // Race structure
 $DEA = array (
@@ -919,7 +918,8 @@ $DEA = array (
             )
         )
     ),
-    'High Elf'    => array (
+	
+    'High Elf ToL'    => array (
         'other'    			=> array (
             'rr_cost' 		=> 50000,
             'bigguy_qty' 	=> 0,
@@ -3493,6 +3493,96 @@ $DEA = array (
             )
         )
     ),
+	
+    'High Elf'    => array (
+        'other'    			=> array (
+            'rr_cost' 		=> 50000,
+            'bigguy_qty' 	=> 0,
+            'ca_qty' 		=> 0,
+			'bz_qty' 		=> 0,
+            'rn_qty' 		=> 0,
+            'th_qty' 		=> 0,
+            'bk_qty' 		=> 0,
+            'sp_qty' 		=> 0,
+			'format'		=> 'BB',
+            'tier' 			=> 1,
+            'team_league' 	=> array (2),
+            'special_rules' => array (),
+            'fav_rules' 	=> array (),
+            'icon' 			=> 'highelf.png',
+            'race_id' 		=> T_RACE_HIGH_ELVES, # (High Elf)
+        ),
+        'players'    => array (
+            'High Elf Lineman'    		=> array (
+                'ma'            		=> 6,
+                'st'            		=> 3,
+                'ag'            		=> 2,
+                'pa'            		=> 3,
+                'av'            		=> 9,
+                'def'        			=> array (),
+                'norm'        			=> array ('A', 'G'),
+                'doub'        			=> array ('S'),
+                'qty'           		=> 16,
+                'cost'          		=> 65000,
+                'keyword'        		=> array (4, 54),
+                'icon'          		=> 'helineman1',
+                'pos_id'        		=> 360,
+                'is_bigguy'        		=> 0,
+                'pos_type'        		=> 'LN',
+            ),
+            'White Lion'    			=> array (
+                'ma'            		=> 7,
+                'st'            		=> 3,
+                'ag'            		=> 2,
+                'pa'            		=> 3,
+                'av'            		=> 9,
+                'def'        			=> array (71, 14),
+                'norm'        			=> array ('A', 'G'),
+                'doub'        			=> array ('P', 'S'),
+                'qty'           		=> 2,
+                'cost'          		=> 110000,
+                'keyword'        		=> array (51, 4),
+                'icon'          		=> 'hecatcher1',
+                'pos_id'        		=> 361,
+                'is_bigguy'        		=> 0,
+                'pos_type'        		=> 'BZ',
+            ),
+            'Phoenix Warrior'    		=> array (
+                'ma'            		=> 6,
+                'st'            		=> 3,
+                'ag'            		=> 2,
+                'pa'            		=> 2,
+                'av'            		=> 9,
+                'def'        			=> array (48, 45, 46),
+                'norm'        			=> array ('A', 'G', 'P'),
+                'doub'        			=> array ('S'),
+                'qty'           		=> 2,
+                'cost'          		=> 90000,
+                'keyword'        		=> array (4, 57),
+                'icon'          		=> 'hethrower1',
+                'pos_id'        		=> 362,
+                'is_bigguy'        		=> 0,
+                'pos_type'        		=> 'TH',
+            ),
+            'Dragon Prince'    		=> array (
+                'ma'           			=> 8,
+                'st'           			=> 3,
+                'ag'           			=> 2,
+                'pa'           			=> 4,
+                'av'           			=> 9,
+                'def'        			=> array (1, 132, 16),
+                'norm'        			=> array ('A', 'G'),
+                'doub'        			=> array ('S'),
+                'qty'          			=> 2,
+                'cost'         			=> 110000,
+                'keyword'        		=> array (51, 4, 55),
+                'icon'         			=> 'heblitzer1',
+                'pos_id'       			=> 363,
+                'is_bigguy'        		=> 0,
+                'pos_type'        		=> 'RN',
+            )
+        )
+    ),
 );
 // Create race ID index (key:val = id:race_name).
 $raceididx = array();
@@ -4106,7 +4196,7 @@ $stars = array(
        'pa'     => 3,
        'av'     => 8,
        'def'    => array (20, 23, 98, 99, 44, 8),
-       'cost'   => 230000,
+       'cost'   => 220000,
        'icon'   => 'star',
        'races'  => array(3, 5, 8, 20),
        'teamrules'  => array(2),

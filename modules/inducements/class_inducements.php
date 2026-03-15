@@ -69,6 +69,13 @@ class IndcPage implements ModuleInterface
 		
         $star_list[0] = '      <option value="0">-No Induced Stars-</option>' . "\n";
         foreach ($stars as $s => $d) {
+			// Skip banned stars - convert string to array first
+			if (isset($rules['banned_stars']) && !empty($rules['banned_stars'])) {
+				$bannedStarsArray = is_array($rules['banned_stars']) ? $rules['banned_stars'] : explode(',', $rules['banned_stars']);
+				if (in_array($d['id'], $bannedStarsArray)) {
+					continue;
+				}
+			}
 			if ($d['megastar'] == 1) { //Checking if megastar, if so appending * to name
 				$s = $s.'*';
 			}
@@ -155,6 +162,13 @@ function SendToPDF()
                 $sid=$_POST["Star$starcnt"];
                 if ($sid != 0) {
                     $s = new Star($sid);
+                    // Override cost with value from $stars array (includes mega star tax)
+                    foreach ($stars as $starName => $starData) {
+                        if ($starData['id'] == $sid) {
+                            $s->cost = $starData['cost'];
+                            break;
+                        }
+                    }
                     $star_list[$starcnt] = $star_list[0];
                     // Update display of selected Star
                     // Ignore if Child Star, will be handled by parent entry
@@ -179,6 +193,13 @@ function SendToPDF()
                         $starcnt++;
                         $sid = $starpairs[$sid];
                         $s = new Star($sid);
+                        // Override cost with value from $stars array (includes mega star tax)
+                        foreach ($stars as $starName => $starData) {
+                            if ($starData['id'] == $sid) {
+                                $s->cost = $starData['cost'];
+                                break;
+                            }
+                        }
                         // Display Child
                         print '    <td class="boxie"><SELECT disabled name="Star' . $starcnt . '">' . "\n";
                         print '    <option value="'.$sid.'">'.$s->name.'</option>' . "\n";

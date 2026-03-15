@@ -64,6 +64,7 @@ global $starpairs;
 global $lng;
 global $specialruleididx;
 global $leagues;
+global $stars;
 
 define("MARGINX", 20);
 define("MARGINY", 20);
@@ -603,7 +604,14 @@ if ($_POST) {
     unset($star_array_tmp[0]);
     foreach ($star_array_tmp as $sid) {
       $s = new Star($sid);
-      $s->setSkills(true);  
+      $s->setSkills(true);
+      // Override cost with value from $stars array (includes mega star tax)
+      foreach ($stars as $starName => $starData) {
+        if ($starData['id'] == $sid) {
+          $s->cost = $starData['cost'];
+          break;
+        }
+      }
       $ss = array('name'=>utf8_decode($s->name), 'keyw'=>'('.utf8_decode(keywordsTrans($s->keywords)).')', 'ma'=>$s->ma, 'st'=>$s->st, 'ag'=>$s->ag, 'pa'=>$s->pa, 'av'=>$s->av, 'skills'=>utf8_decode($s->skills),'special'=>utf8_decode(specialsTrans($s->special)),
             'cp'=>$s->mv_cp, 'td'=>$s->mv_td, 'int'=>$s->mv_intcpt, 'cas'=>$s->mv_cas, 'mvp'=>$s->mv_mvp, 'misc'=>$s->mv_misc, 'spp'=>$s->mv_spp, 'value'=>$pdf->Mf($s->cost));
       $currenty+=$pdf->print_srow($ss, $currentx, $currenty, $h, $bgc, DEFLINECOLOR, 0.5, 8);
@@ -613,6 +621,13 @@ if ($_POST) {
           $sid = $starpairs[$sid];
           $s = new Star($sid);
           $s->setSkills(true);
+          // Override cost with value from $stars array (includes mega star tax)
+          foreach ($stars as $starName => $starData) {
+            if ($starData['id'] == $sid) {
+              $s->cost = $starData['cost'];
+              break;
+            }
+          }
           $ss = array('name'=>utf8_decode($s->name), 'ma'=>$s->ma, 'st'=>$s->st, 'ag'=>$s->ag, 'pa'=>$s->pa, 'av'=>$s->av, 'skills'=>utf8_decode($s->skills),'special'=>utf8_decode(specialsTrans($s->special)),
           'cp'=>$s->mv_cp, 'td'=>$s->mv_td, 'int'=>$s->mv_intcpt, 'cas'=>$s->mv_cas, //'mvp'=>$s->mv_mvp, 
 		  'misc'=>$s->mv_misc, 'spp'=>$s->mv_spp, 'value'=>$pdf->Mf($s->cost));

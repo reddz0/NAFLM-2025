@@ -83,6 +83,14 @@ $rules['major_win_pts'] 			= 0; 	//Bonus points for a Major Win
 $rules['clean_sheet_pts'] 			= 0; 	//Bonus points for conceding 0 TDs (clean sheet)
 $rules['major_beat_cas'] 			= 0; 	//Major Beating for scoring how many Casualties
 $rules['major_beat_pts'] 			= 0; 	//Bonus points for a Major Beating
+// Prayers to Nuffle cost override (0 = use default from game data)
+$rules['prayer_cost'] 				= 0;
+// Banned star player IDs (comma-separated list)
+$rules['banned_stars'] 				= '';
+// Mega star tax (flat amount added to mega star costs)
+$rules['megastar_tax'] 				= 0;
+// Minimum team value required
+$rules['min_tv'] 					= 0;
 // Remove double backslashes in front of team number to enable team specific starting treasuries.
 $rules['initial_team_treasury'] = array(	//	0			=>	1000000,	// Amazon (teams of legend)
 											//	1			=>	1000000,	// Chaos Chosen

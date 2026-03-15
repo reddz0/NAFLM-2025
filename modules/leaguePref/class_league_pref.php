@@ -19,29 +19,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-/*
-    This file is a template for modules.
-
-    Note: the two terms functions and methods are used loosely in this documentation. They mean the same thing.
-
-    How to USE a module once it's written:
-    ---------------------------------
-        Firstly you will need to register it in the modules/modsheader.php file.
-        The existing entries and comments should be enough to figure out how to do that.
-        Now, let's say that your module (as an example) prints some kind of statistics containing box.
-        What should you then write on the respective page in order to print the box?
-
-            if (Module::isRegistered('MyModule')) {
-                Module::run('MyModule', array());
-            }
-
-        The second argument passed to Module::run() is the $argv array passed on to main() (see below).
-*/
-/*
-	Using the league prefences league and global administrators can change the touranments displayed on the homepage dynamically.
-	Within the settings_xxx.php file the ID for each box should be set to 'prime' or 'second' to pick up the tournaments selected as primary and secondary.
-    In addition the primary tournament will be selected by default on the league tables page.
-*/
 
 class LeaguePref implements ModuleInterface
 {
@@ -50,48 +27,27 @@ class LeaguePref implements ModuleInterface
  * ModuleInterface requirements. These functions MUST be defined.
  ***************/
 
-/*
- *  Basically you are free to design your main() function as you wish.
- *  If you are writing a simple module that merely echoes out some data, you may want to have main() doing all the work (i.e. place all your code here).
- *  If you on the other hand are writing a module which is divided into several routines, you may (and should) use the main() as a wrapper for calling the appropriate code.
- *
- *  The below main() example illustrates how main() COULD work as a wrapper, when the subdivision of code is done into functions in this SAME class.
- */
-public static function main($argv) # argv = argument vector (array).
+public static function main($argv)
 {
-    /*
-        Let $argv[0] be the name of the function we wish main() to call.
-        Let the remaining contents of $argv be the arguments of that function, in the correct order.
-
-        Please note only static functions are callable through main().
-    */
-
     $func = array_shift($argv);
     return call_user_func_array(array(__CLASS__, $func), $argv);
 }
 
-/*
- *  This function returns information about the module and its author.
- */
 public static function getModuleAttributes()
 {
     return array(
         'author'     => 'DoubleSkulls',
         'moduleName' => 'LeaguePref',
-        'date'       => '2011', # For example '2009'.
-        'setCanvas'  => true, # If true, whenever your main() is run through Module::run() your code's output will be "sandwiched" into the standard HTML frame.
+        'date'       => '2011',
+        'setCanvas'  => true,
     );
 }
 
-/*
- *  This function returns the MySQL table definitions for the tables required by the module. If no tables are used array() should be returned.
- */
 public static function getModuleTables()
 {
     global $CT_cols;
 
 	return array(
-        # Table name => column definitions
         'league_prefs' => array(
 			'f_lid'       => $CT_cols[T_NODE_LEAGUE].' NOT NULL PRIMARY KEY ',
 	        'prime_tid'   => $CT_cols[T_NODE_TOURNAMENT],
@@ -136,15 +92,9 @@ public static function triggerHandler($type, $argv){
 }
 
 /***************
- * OPTIONAL subdivision of module code into class methods.
- *
- * These work as in ordinary classes with the exception that you really should (but are strictly required to) only interact with the class through static methods.
- ***************/
-
-/***************
  * Properties
  ***************/
-/*public $lid      = 0;*/
+public $lid      = 0;
 public $l_name    = '';
 public $p_tour   = 0;
 public $s_tour = 0;
@@ -156,12 +106,9 @@ public $existing = false;
 public $theme_css = '';
 public $core_theme_id = 0;
 public $tv = 0;
-public $tv_sevens = 0;
 public $language = 'en-GB';
 public $helf = 0;
 public $slann = 0;
-//public $dungeon = 0;
-//public $sevens = 0;
 public $randomskillrolls = 0;
 public $randomskillmanualentry = 0;
 public $megastars = 0;
@@ -172,10 +119,14 @@ public $major_win_pts = 0;
 public $clean_sheet_pts = 0;
 public $major_beat_cas = 0;
 public $major_beat_pts = 0;
+public $prayer_cost = 0;
+public $banned_stars = '';
+public $megastar_tax = 0;
+public $min_tv = 0;
 
 function __construct($lid, $name, $ptid, $stid, $league_name, $forum_url, $welcome, $rules, $existing, $theme_css, $core_theme_id, $tv, $language, $helf, $slann, 
-//$dungeon,  $sevens, 
-$randomskillrolls, $randomskillmanualentry, $megastars, $base_inducements, $fireunder11, $major_win_tds, $major_win_pts, $clean_sheet_pts, $major_beat_cas, $major_beat_pts) {
+$randomskillrolls, $randomskillmanualentry, $megastars, $base_inducements, $fireunder11, $major_win_tds, $major_win_pts, $clean_sheet_pts, $major_beat_cas, $major_beat_pts, 
+$prayer_cost, $banned_stars, $megastar_tax, $min_tv) {
 	global $settings;
 	$this->lid = $lid;
 	$this->l_name = $name;
@@ -189,12 +140,9 @@ $randomskillrolls, $randomskillmanualentry, $megastars, $base_inducements, $fire
     $this->theme_css = $theme_css;
     $this->core_theme_id = $core_theme_id;
     $this->tv = $tv;
-    //$this->tv_sevens = $tv_sevens;
     $this->language = $language;
     $this->helf = $helf;
     $this->slann = $slann;
-    //$this->dungeon = $dungeon;
-    //$this->sevens = $sevens;
     $this->randomskillrolls = $randomskillrolls;
     $this->randomskillmanualentry = $randomskillmanualentry;
     $this->megastars = $megastars;
@@ -205,6 +153,10 @@ $randomskillrolls, $randomskillmanualentry, $megastars, $base_inducements, $fire
     $this->clean_sheet_pts = $clean_sheet_pts;
     $this->major_beat_cas = $major_beat_cas;
     $this->major_beat_pts = $major_beat_pts;
+    $this->prayer_cost = $prayer_cost;
+    $this->banned_stars = $banned_stars;
+    $this->megastar_tax = $megastar_tax;
+    $this->min_tv = $min_tv;
 }
 
 /* Gets the preferences for the current league */
@@ -224,31 +176,121 @@ public static function getLeaguePreferences() {
                 $row['prime_tid'], $row['second_tid'], $row['league_name'], $row['forum_url'],
                 $row['welcome'], $row['rules'], true, $theme_css, 
                 $settings['stylesheet'], $rules['initial_treasury'], 
-				//$rules['initial_treasury_sevens'], 
 				$settings['lang'],
 				$rules['helf'],$rules['slann'],
-				//$rules['dungeon'],$rules['sevens'],
 				$rules['randomskillrolls'],$rules['randomskillmanualentry'],
 				$rules['megastars'],$rules['base_inducements'],$rules['fireunder11'],
 				$rules['major_win_tds'],$rules['major_win_pts'],$rules['clean_sheet_pts'],
-				$rules['major_beat_cas'],$rules['major_beat_pts']);
+				$rules['major_beat_cas'],$rules['major_beat_pts'],
+				isset($rules['prayer_cost']) ? $rules['prayer_cost'] : 0,
+				isset($rules['banned_stars']) ? $rules['banned_stars'] : '',
+				isset($rules['megastar_tax']) ? $rules['megastar_tax'] : 0,
+				isset($rules['min_tv']) ? $rules['min_tv'] : 0);
         }
     } else {
 		return new LeaguePref($sel_lid, $leagues['lname'], null, null, null, null, null, null, false, null, 
             $settings['stylesheet'], $rules['initial_treasury'], 
-			//$rules['initial_treasury_sevens'], 
 			$settings['lang'],
 			$rules['helf'],$rules['slann'],
-			//$rules['dungeon'],$rules['sevens'],
 			$rules['randomskillrolls'],$rules['randomskillmanualentry'],
 			$rules['megastars'],$rules['base_inducements'],$rules['fireunder11'],
 			$rules['major_win_tds'],$rules['major_win_pts'],$rules['clean_sheet_pts'],
-			$rules['major_beat_cas'],$rules['major_beat_pts']);
+			$rules['major_beat_cas'],$rules['major_beat_pts'],
+			0, '', 0, 0);
 	}
 }
 
 function validate() {
 	return $this->p_tour != $this->s_tour && $this->p_tour > 0;
+}
+
+/**
+ * Syncs league-specific settings file with template, preserving custom values and comments
+ * Only updates/inserts the specific rules that are managed by LeaguePref
+ */
+private function syncSettingsWithTemplate() {
+    $templatePath = FileManager::getSettingsDirectoryName() . "/settings_new_league_template.php";
+    $leagueSettingsPath = FileManager::getSettingsDirectoryName() . "/settings_$this->lid.php";
+    
+    // Read both files
+    $templateContents = FileManager::readFile($templatePath);
+    $leagueContents = FileManager::readFile($leagueSettingsPath);
+    
+    // Define which rules are managed by LeaguePref (the ones we have form fields for)
+    // IMPORTANT: These must be in the same order as they appear in the template
+    $managedRules = array(
+        'initial_treasury',
+        'helf',
+        'slann',
+        'randomskillrolls',
+        'randomskillmanualentry',
+        'megastars',
+        'base_inducements',
+        'fireunder11',
+        'major_win_tds',
+        'major_win_pts',
+        'clean_sheet_pts',
+        'major_beat_cas',
+        'major_beat_pts',
+        'prayer_cost',
+        'banned_stars',
+        'megastar_tax',
+        'min_tv'
+    );
+    
+    // Process in reverse order so insertions don't mess up positions
+    for ($i = count($managedRules) - 1; $i >= 0; $i--) {
+        $ruleName = $managedRules[$i];
+        $pattern = "/\\\$rules\['$ruleName'\]/";
+        
+        // If the rule doesn't exist in the league file, we need to add it from template
+        if (!preg_match($pattern, $leagueContents)) {
+            // Extract the line from template with optional single comment
+            $extractPattern = "/(\/\/[^\n]*\n)?\\\$rules\['$ruleName'\][^;]+;/";
+            if (preg_match($extractPattern, $templateContents, $matches)) {
+                $templateLine = $matches[0];
+                
+                // Find where to insert by looking for the NEXT rule in the list that exists
+                $inserted = false;
+                for ($j = $i + 1; $j < count($managedRules); $j++) {
+                    $nextRule = $managedRules[$j];
+                    $nextPattern = "/((?:\/\/[^\n]*\n)?)\\\$rules\['$nextRule'\]/";
+                    
+                    if (preg_match($nextPattern, $leagueContents, $nextMatches, PREG_OFFSET_CAPTURE)) {
+                        // Insert before this next rule (including its comment if present)
+                        $insertPos = $nextMatches[1][1];
+                        $leagueContents = substr_replace($leagueContents, $templateLine . "\n", $insertPos, 0);
+                        $inserted = true;
+                        break;
+                    }
+                }
+                
+                // If no next rule found, insert before initial_team_treasury (including its comment)
+                if (!$inserted) {
+                    $insertBeforePattern = "/((?:\/\/[^\n]*\n)?)\\\$rules\['initial_team_treasury'\]/";
+                    if (preg_match($insertBeforePattern, $leagueContents, $insertMatches, PREG_OFFSET_CAPTURE)) {
+                        $insertPos = $insertMatches[1][1];
+                        $leagueContents = substr_replace($leagueContents, $templateLine . "\n", $insertPos, 0);
+                    }
+                }
+            }
+        }
+    }
+    
+    return $leagueContents;
+}
+
+/**
+ * Updates a single rule value in the settings content, preserving comments
+ */
+private function updateRule($contents, $ruleName, $value, $isString = false) {
+    $valueFormatted = $isString ? "'$value'" : $value;
+    
+    // Match the rule assignment but preserve any inline comment
+    $pattern = "/(\\\$rules\['$ruleName'\]\s*=\s*)[^;]+(;[^\n]*)/";
+    $replacement = "\${1}$valueFormatted\${2}";
+    
+    return preg_replace($pattern, $replacement, $contents);
 }
 
 function save() {
@@ -260,97 +302,58 @@ function save() {
     } else {
         $query = "INSERT INTO league_prefs (f_lid, prime_tid, second_tid, league_name, forum_url, welcome, rules) VALUE ($this->lid, $this->p_tour, $this->s_tour, '".mysql_real_escape_string($this->league_name)."', '".mysql_real_escape_string($this->forum_url)."', '".mysql_real_escape_string($this->welcome)."', '".mysql_real_escape_string($this->rules)."')";
     }
+    
+    // Save CSS
     $savedcss = preg_replace('/<p>/', '', $this->theme_css);
     $savedcssfinal = preg_replace('/<\/p>/', '', $savedcss);
     FileManager::writeFile(FileManager::getCssDirectoryName() . "/league_override_$this->lid.css", $savedcssfinal);
     
-    $settingsFileContents = FileManager::readFile(FileManager::getSettingsDirectoryName() . "/settings_$this->lid.php");
-    $settingsFileContents = preg_replace("/settings\['stylesheet'\]\s*=\s['A-Za-z0-9_]+/", "settings['stylesheet'] = $this->core_theme_id", $settingsFileContents);
-    $settingsFileContents = preg_replace("/settings\['lang'\]\s*=\s['A-Za-z0-9_\-]+/", "settings['lang'] = '$this->language'", $settingsFileContents);
-    $settingsFileContents = preg_replace("/rules\['initial_treasury'\]\s*=\s['A-Za-z0-9_]+/", "rules['initial_treasury'] = $this->tv", $settingsFileContents);
-    //$settingsFileContents = preg_replace("/rules\['initial_treasury_sevens'\]\s*=\s['A-Za-z0-9_]+/", "rules['initial_treasury_sevens'] = $this->tv_sevens", $settingsFileContents);
-	if ($this->helf == 1) {
-		$settingsFileContents = preg_replace("/rules\['helf'\]\s*=\s['A-Za-z0-9_]+/", "rules['helf'] = $this->helf", $settingsFileContents);
-	} else {
-        $settingsFileContents = preg_replace("/rules\['helf'\]\s*=\s['A-Za-z0-9_]+/", "rules['helf'] = 0", $settingsFileContents);
-    }
-	if ($this->slann == 1) {
-		$settingsFileContents = preg_replace("/rules\['slann'\]\s*=\s['A-Za-z0-9_]+/", "rules['slann'] = $this->slann", $settingsFileContents);
-	} else {
-        $settingsFileContents = preg_replace("/rules\['slann'\]\s*=\s['A-Za-z0-9_]+/", "rules['slann'] = 0", $settingsFileContents);
-    }
-	//if ($this->dungeon == 1) {
-	//	$settingsFileContents = preg_replace("/rules\['dungeon'\]\s*=\s['A-Za-z0-9_]+/", "rules['dungeon'] = $this->dungeon", $settingsFileContents);
-	//} else {
-    //    $settingsFileContents = preg_replace("/rules\['dungeon'\]\s*=\s['A-Za-z0-9_]+/", "rules['dungeon'] = 0", $settingsFileContents);
-    //}
-	//if ($this->sevens == 1) {
-	//	$settingsFileContents = preg_replace("/rules\['sevens'\]\s*=\s['A-Za-z0-9_]+/", "rules['sevens'] = $this->sevens", $settingsFileContents);
-	//} else {
-    //    $settingsFileContents = preg_replace("/rules\['sevens'\]\s*=\s['A-Za-z0-9_]+/", "rules['sevens'] = 0", $settingsFileContents);
-    //}
-	if ($this->randomskillrolls == 1) {
-		$settingsFileContents = preg_replace("/rules\['randomskillrolls'\]\s*=\s['A-Za-z0-9_]+/", "rules['randomskillrolls'] = $this->randomskillrolls", $settingsFileContents);
-	} else {
-        $settingsFileContents = preg_replace("/rules\['randomskillrolls'\]\s*=\s['A-Za-z0-9_]+/", "rules['randomskillrolls'] = 0", $settingsFileContents);
-    }
-	if ($this->randomskillmanualentry == 1) {
-		$settingsFileContents = preg_replace("/rules\['randomskillmanualentry'\]\s*=\s['A-Za-z0-9_]+/", "rules['randomskillmanualentry'] = $this->randomskillmanualentry", $settingsFileContents);
-	} else {
-        $settingsFileContents = preg_replace("/rules\['randomskillmanualentry'\]\s*=\s['A-Za-z0-9_]+/", "rules['randomskillmanualentry'] = 0", $settingsFileContents);
-    }
-	if ($this->megastars == 1) {
-		$settingsFileContents = preg_replace("/rules\['megastars'\]\s*=\s['A-Za-z0-9_]+/", "rules['megastars'] = $this->megastars", $settingsFileContents);
-	} else {
-        $settingsFileContents = preg_replace("/rules\['megastars'\]\s*=\s['A-Za-z0-9_]+/", "rules['megastars'] = 0", $settingsFileContents);
-    }
-	if ($this->base_inducements == 1) {
-		$settingsFileContents = preg_replace("/rules\['base_inducements'\]\s*=\s['A-Za-z0-9_]+/", "rules['base_inducements'] = $this->base_inducements", $settingsFileContents);
-	} else {
-        $settingsFileContents = preg_replace("/rules\['base_inducements'\]\s*=\s['A-Za-z0-9_]+/", "rules['base_inducements'] = 0", $settingsFileContents);
-    }
-	if ($this->fireunder11 == 1) {
-		$settingsFileContents = preg_replace("/rules\['fireunder11'\]\s*=\s['A-Za-z0-9_]+/", "rules['fireunder11'] = $this->fireunder11", $settingsFileContents);
-	} else {
-        $settingsFileContents = preg_replace("/rules\['fireunder11'\]\s*=\s['A-Za-z0-9_]+/", "rules['fireunder11'] = 0", $settingsFileContents);
-    }
-	if ($this->major_win_tds > 0) {
-		$settingsFileContents = preg_replace("/rules\['major_win_tds'\]\s*=\s['A-Za-z0-9_]+/", "rules['major_win_tds'] = $this->major_win_tds", $settingsFileContents);
-	} else {
-        $settingsFileContents = preg_replace("/rules\['major_win_tds'\]\s*=\s['A-Za-z0-9_]+/", "rules['major_win_tds'] = 0", $settingsFileContents);
-    }
-	if ($this->major_win_pts > 0) {
-		$settingsFileContents = preg_replace("/rules\['major_win_pts'\]\s*=\s['A-Za-z0-9_]+/", "rules['major_win_pts'] = $this->major_win_pts", $settingsFileContents);
-	} else {
-        $settingsFileContents = preg_replace("/rules\['major_win_pts'\]\s*=\s['A-Za-z0-9_]+/", "rules['major_win_pts'] = 0", $settingsFileContents);
-    }
-	if ($this->clean_sheet_pts > 0) {
-		$settingsFileContents = preg_replace("/rules\['clean_sheet_pts'\]\s*=\s['A-Za-z0-9_]+/", "rules['clean_sheet_pts'] = $this->clean_sheet_pts", $settingsFileContents);
-	} else {
-        $settingsFileContents = preg_replace("/rules\['clean_sheet_pts'\]\s*=\s['A-Za-z0-9_]+/", "rules['clean_sheet_pts'] = 0", $settingsFileContents);
-    }
-	if ($this->major_beat_cas > 0) {
-		$settingsFileContents = preg_replace("/rules\['major_beat_cas'\]\s*=\s['A-Za-z0-9_]+/", "rules['major_beat_cas'] = $this->major_beat_cas", $settingsFileContents);
-	} else {
-        $settingsFileContents = preg_replace("/rules\['major_beat_cas'\]\s*=\s['A-Za-z0-9_]+/", "rules['major_beat_cas'] = 0", $settingsFileContents);
-    }
-	if ($this->major_beat_pts > 0) {
-		$settingsFileContents = preg_replace("/rules\['major_beat_pts'\]\s*=\s['A-Za-z0-9_]+/", "rules['major_beat_pts'] = $this->major_beat_pts", $settingsFileContents);
-	} else {
-        $settingsFileContents = preg_replace("/rules\['major_beat_pts'\]\s*=\s['A-Za-z0-9_]+/", "rules['major_beat_pts'] = 0", $settingsFileContents);
-    }
+    // Sync settings file with template (adds any missing rules)
+    $settingsFileContents = $this->syncSettingsWithTemplate();
+    
+    // Update stylesheet and language (these use different patterns)
+    $settingsFileContents = preg_replace("/settings\['stylesheet'\]\s*=\s*[^;]+;/", "settings['stylesheet'] = $this->core_theme_id;", $settingsFileContents);
+    $settingsFileContents = preg_replace("/settings\['lang'\]\s*=\s*[^;]+;/", "settings['lang'] = '$this->language';", $settingsFileContents);
+    
+    // Update all the rules using the helper method
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'initial_treasury', $this->tv);
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'helf', $this->helf == 1 ? 1 : 0);
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'slann', $this->slann == 1 ? 1 : 0);
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'randomskillrolls', $this->randomskillrolls == 1 ? 1 : 0);
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'randomskillmanualentry', $this->randomskillmanualentry == 1 ? 1 : 0);
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'megastars', $this->megastars == 1 ? 1 : 0);
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'base_inducements', $this->base_inducements == 1 ? 1 : 0);
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'fireunder11', $this->fireunder11 == 1 ? 1 : 0);
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'major_win_tds', $this->major_win_tds > 0 ? $this->major_win_tds : 0);
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'major_win_pts', $this->major_win_pts > 0 ? $this->major_win_pts : 0);
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'clean_sheet_pts', $this->clean_sheet_pts > 0 ? $this->clean_sheet_pts : 0);
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'major_beat_cas', $this->major_beat_cas > 0 ? $this->major_beat_cas : 0);
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'major_beat_pts', $this->major_beat_pts > 0 ? $this->major_beat_pts : 0);
+    
+    // NEW SETTINGS
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'prayer_cost', $this->prayer_cost > 0 ? $this->prayer_cost : 0);
+    $banned_stars_clean = mysql_real_escape_string(trim($this->banned_stars));
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'banned_stars', $banned_stars_clean, true);
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'megastar_tax', $this->megastar_tax > 0 ? $this->megastar_tax : 0);
+    $settingsFileContents = $this->updateRule($settingsFileContents, 'min_tv', $this->min_tv > 0 ? $this->min_tv : 0);
+    
+    // Write the file
     FileManager::writeFile(FileManager::getSettingsDirectoryName() . "/settings_$this->lid.php", $settingsFileContents);
     
+    // Update global settings/rules arrays
     $settings['stylesheet'] = $this->core_theme_id;
     $settings['lang'] = $this->language;
     $rules['initial_treasury'] = $this->tv;
-    $rules['initial_treasury_sevens'] = $this->tv_sevens;
+    $rules['prayer_cost'] = $this->prayer_cost;
+    $rules['banned_stars'] = $this->banned_stars;
+    $rules['megastar_tax'] = $this->megastar_tax;
+    $rules['min_tv'] = $this->min_tv;
             
     return mysql_query($query);
 }
 
 public static function showLeaguePreferences() {
-    global $lng, $tours, $coach, $leagues, $settings, $rules;
+    global $lng, $tours, $coach, $leagues, $settings, $rules, $stars;
     title($lng->getTrn('name', 'LeaguePref'));
 
 	self::handleActions();
@@ -381,7 +384,6 @@ public static function showLeaguePreferences() {
 	list($sel_lid, $HTML_LeagueSelector_temp) = HTMLOUT::simpleLeagueSelector();
 
 	// Filter tournaments to only those belonging to the selected league
-	// We need to join with divisions to get the league ID
 	$leagueTours = array();
 	$tourQuery = mysql_query("SELECT t.tour_id, t.name FROM tours t 
 							  INNER JOIN divisions d ON t.f_did = d.did 
@@ -421,24 +423,23 @@ public static function showLeaguePreferences() {
                             <?php echo $lng->getTrn('tv_title', 'LeaguePref'); ?>:
                         </td>
                         <td>
-                            <input type="number" min="0" name="tv" <?php echo $canEdit; ?> value="<?php echo $l_pref->tv; ?>" />
+                            <input type="number" min="0" step="5000" name="tv" <?php echo $canEdit; ?> value="<?php echo $l_pref->tv; ?>" />
                         </td>
                     </tr>
-                    <!--tr title="<?php //echo $lng->getTrn('tv_sevens_help', 'LeaguePref'); ?>">
+                    <tr title="<?php echo $lng->getTrn('min_tv_help', 'LeaguePref'); ?>">
                         <td>
-                            <?php //echo $lng->getTrn('tv_sevens_title', 'LeaguePref'); ?>:
+                            <?php echo $lng->getTrn('min_tv_title', 'LeaguePref'); ?>:
                         </td>
                         <td>
-                            <input type="number" min="0" name="tv_sevens" <?php //echo $canEdit; ?> value="<?php //echo $l_pref->tv_sevens; ?>" />
+                            <input type="number" min="0" step="5000" name="min_tv" <?php echo $canEdit; ?> value="<?php echo $l_pref->min_tv; ?>" />
                         </td>
-                    </tr-->
+                    </tr>
                     <tr title="<?php echo $lng->getTrn('language_help', 'LeaguePref'); ?>">
                         <td>
                             <?php echo $lng->getTrn('language_title', 'LeaguePref'); ?>:
                         </td>
                         <td>
                             <select name="language" <?php echo $canEdit; ?>>
-                                
                                 <option value="en-GB" <? echo 'en-GB' == $settings['lang'] ? 'selected' : '' ?>><?php echo $lng->getTrn('common/english'); ?></option>
                                 <option value="es-ES" <? echo 'es-ES' == $settings['lang'] ? 'selected' : '' ?>><?php echo $lng->getTrn('common/spanish'); ?></option>
                                 <option value="de-DE" <? echo 'de-DE' == $settings['lang'] ? 'selected' : '' ?>><?php echo $lng->getTrn('common/german'); ?></option>
@@ -471,8 +472,6 @@ public static function showLeaguePreferences() {
                             <textarea rows="4" cols="90" class="html_edit" name="rules" <?php echo $canEdit; ?>><?php echo $l_pref->rules; ?></textarea>
                         </td>
                     </tr>
-					
-					
                     <tr title="<?php echo $prime_help; ?>">
                         <td>
                             <?php echo $prime_title; ?>:
@@ -534,7 +533,6 @@ public static function showLeaguePreferences() {
                             <textarea rows="10" cols="120" name="theme_css" <?php echo $canEdit; ?>><?php echo $l_pref->theme_css; ?></textarea>
                         </td>                        
                     </tr>
-					
                     <tr title="<?php echo $lng->getTrn('teams_legend_help', 'LeaguePref'); ?>">
                         <td>
                             <?php echo $lng->getTrn('teams_legend_title', 'LeaguePref'); ?>
@@ -545,43 +543,6 @@ public static function showLeaguePreferences() {
 							<br>
 							<input type='checkbox' name='slann' value='1' onclick='slideToggleFast("slann");'	<?php if($rules['slann'] == 1) {echo 'checked';}?>>
                             <b><?php echo $lng->getTrn('teams_legend_slann', 'LeaguePref'); ?></b>
-                        </td>                        
-                    </tr>
-					<!-- hiding dungeonbowl and sevens options
-                    <tr title="<?php //echo $lng->getTrn('dungeonbowl_help', 'LeaguePref'); ?>">
-                        <td>
-                            <?php //echo $lng->getTrn('dungeonbowl_title', 'LeaguePref'); ?>
-                        </td>
-                        <td>     
-							<input type='checkbox' name='dungeon' value='1' onclick='slideToggleFast("dungeon");'	<?php //if($rules['dungeon'] == 1) {echo 'checked';}?>>
-                            <b><?php //echo $lng->getTrn('dungeonbowl', 'LeaguePref'); ?></b>
-                        </td>                        
-                    </tr>
-                    <tr title="<?php //echo $lng->getTrn('sevens_help', 'LeaguePref'); ?>">
-                        <td>
-                            <?php //echo $lng->getTrn('sevens_title', 'LeaguePref'); ?>
-                        </td>
-                        <td>     
-							<input type='checkbox' name='sevens' value='1' onclick='slideToggleFast("sevens");'	<?php //if($rules['sevens'] == 1) {echo 'checked';}?>>
-                            <b><?php //echo $lng->getTrn('sevens', 'LeaguePref'); ?></b>
-                        </td>                        
-                    </tr>  -->
-                    <tr title="<?php echo $lng->getTrn('megastars_help', 'LeaguePref'); ?>">
-                        <td>
-                            <?php echo $lng->getTrn('megastars_title', 'LeaguePref'); ?>
-                        </td>
-                        <td>     
-							<input type='checkbox' name='megastars' value='1' onclick='slideToggleFast("megastars");'	<?php if($rules['megastars'] == 1) {echo 'checked';}?>>
-                            <b><?php echo $lng->getTrn('megastars', 'LeaguePref'); ?></b>
-                        </td>                        
-                    </tr>
-                    <tr title="<?php echo $lng->getTrn('base_inducements_help', 'LeaguePref'); ?>">
-                        <td>
-                            <?php echo $lng->getTrn('base_inducements_title', 'LeaguePref'); ?>
-                        </td>
-                        <td>     
-							<input type='checkbox' name='base_inducements' value='1' onclick='slideToggleFast("base_inducements");'	<?php if($rules['base_inducements'] == 1) {echo 'checked';}?>>
-                            <b><?php echo $lng->getTrn('base_inducements', 'LeaguePref'); ?></b>
                         </td>                        
                     </tr>
                     <tr title="<?php echo $lng->getTrn('fireunder11_help', 'LeaguePref'); ?>">
@@ -628,6 +589,63 @@ public static function showLeaguePreferences() {
 							<b><?php echo $lng->getTrn('major_beat_pts', 'LeaguePref'); ?></b>
                         </td>                        
                     </tr>
+                    <tr title="<?php echo $lng->getTrn('base_inducements_help', 'LeaguePref'); ?>">
+                        <td>
+                            <?php echo $lng->getTrn('base_inducements_title', 'LeaguePref'); ?>
+                        </td>
+                        <td>     
+							<input type='checkbox' name='base_inducements' value='1' onclick='slideToggleFast("base_inducements");'	<?php if($rules['base_inducements'] == 1) {echo 'checked';}?>>
+                            <b><?php echo $lng->getTrn('base_inducements', 'LeaguePref'); ?></b>
+                        </td>                        
+                    </tr>
+                    <tr title="<?php echo $lng->getTrn('prayer_cost_help', 'LeaguePref'); ?>">
+                        <td>
+                            <?php echo $lng->getTrn('prayer_cost_title', 'LeaguePref'); ?>
+                        </td>
+                        <td>
+                            <input type="number" min="0" step="5000" name="prayer_cost" <?php echo $canEdit; ?> value="<?php echo $l_pref->prayer_cost; ?>" />
+                            <small>(0 = use standard cost)</small>
+                        </td>
+                    </tr>
+                    <tr title="<?php echo $lng->getTrn('megastars_help', 'LeaguePref'); ?>">
+                        <td>
+                            <?php echo $lng->getTrn('megastars_title', 'LeaguePref'); ?>
+                        </td>
+                        <td>     
+							<input type='checkbox' name='megastars' value='1' onclick='slideToggleFast("megastars");'	<?php if($rules['megastars'] == 1) {echo 'checked';}?>>
+                            <b><?php echo $lng->getTrn('megastars', 'LeaguePref'); ?></b>
+                        </td>                        
+                    </tr>
+                    <tr title="<?php echo $lng->getTrn('megastar_tax_help', 'LeaguePref'); ?>">
+                        <td>
+                            <?php echo $lng->getTrn('megastar_tax_title', 'LeaguePref'); ?>:
+                        </td>
+                        <td>
+                            <input type="number" min="0" step="5000" name="megastar_tax" <?php echo $canEdit; ?> value="<?php echo $l_pref->megastar_tax; ?>" />
+                            <small>(flat fee added to Mega Star costs)</small>
+                        </td>
+                    </tr>
+                    <tr title="<?php echo $lng->getTrn('banned_stars_help', 'LeaguePref'); ?>">
+                        <td>
+                            <?php echo $lng->getTrn('banned_stars_title', 'LeaguePref'); ?>:
+                        </td>
+                        <td>
+                            <?php
+                            $banned_array = !empty($l_pref->banned_stars) ? explode(',', $l_pref->banned_stars) : array();
+                            ?>
+                            <select name="banned_stars[]" multiple size="8" style="width: 400px;" <?php echo $canEdit; ?>>
+                            <?php
+                            foreach ($stars as $star_name => $star_data) {
+                                $star_id = $star_data['id'];
+                                $selected = in_array($star_id, $banned_array) ? 'selected' : '';
+                                echo '<option value="' . $star_id . '" ' . $selected . '>' . htmlspecialchars($star_name) . '</option>';
+                            }
+                            ?>
+                            </select>
+                            <br><small><?php echo $lng->getTrn('banned_stars_note', 'LeaguePref'); ?> (Hold Ctrl/Cmd to select multiple)</small>
+                        </td>
+                    </tr>
+
                     <tr title="<?php echo $submit_title; ?>">
                         <td colspan="2">
                             <br><input type="submit" name="action" <?php echo $canEdit; ?> value="<?php echo $submit_text; ?>" style="position:relative; right:-200px;">
@@ -649,17 +667,27 @@ public static function handleActions() {
     
     if (isset($_POST['action'])) {
     	if (is_object($coach) && $coach->isNodeCommish(T_NODE_LEAGUE, $_POST['lid'])) {
+    	    // Handle banned stars multi-select
+    	    $banned_stars = '';
+    	    if (isset($_POST['banned_stars']) && is_array($_POST['banned_stars'])) {
+    	        $banned_stars = implode(',', $_POST['banned_stars']);
+    	    }
+    	    
 			$l_pref = new LeaguePref($_POST['lid'], "", $_POST['p_tour'], $_POST['s_tour'],
                 $_POST['league_name'], $_POST['forum_url'], $_POST['welcome'], 
                 $_POST['rules'], $_POST['existing'], $_POST['theme_css'], 
-                $_POST['core_theme_id'], $_POST['tv'],//$_POST['tv_sevens'], 
+                $_POST['core_theme_id'], $_POST['tv'], 
 				$_POST['language'],
-				$_POST['helf'],$_POST['slann'],
-				//$_POST['dungeon'],$_POST['sevens'],
-				$_POST['randomskillrolls'],$_POST['randomskillmanualentry'],
-				$_POST['megastars'],$_POST['base_inducements'],$_POST['fireunder11'],
+				isset($_POST['helf']) ? $_POST['helf'] : 0,
+				isset($_POST['slann']) ? $_POST['slann'] : 0,
+				isset($_POST['randomskillrolls']) ? $_POST['randomskillrolls'] : 0,
+				isset($_POST['randomskillmanualentry']) ? $_POST['randomskillmanualentry'] : 0,
+				isset($_POST['megastars']) ? $_POST['megastars'] : 0,
+				isset($_POST['base_inducements']) ? $_POST['base_inducements'] : 0,
+				isset($_POST['fireunder11']) ? $_POST['fireunder11'] : 0,
 				$_POST['major_win_tds'],$_POST['major_win_pts'],$_POST['clean_sheet_pts'],
-				$_POST['major_beat_cas'],$_POST['major_beat_pts']);
+				$_POST['major_beat_cas'],$_POST['major_beat_pts'],
+				$_POST['prayer_cost'], $banned_stars, $_POST['megastar_tax'], $_POST['min_tv']);
 			if($l_pref->validate()) {
 				if($l_pref->save()) {
 					echo "<div class='boxWide'>";

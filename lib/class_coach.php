@@ -533,9 +533,13 @@ class Coach
         if (($status = mysql_query($query)) && is_numeric($cid = mysql_insert_id())) {
             // Set default memberships
             $newCoach = new Coach($cid);
-            foreach (array_merge($settings['default_leagues'], $input['def_leagues']) as $lid) {
-                $status &= $newCoach->setRing(self::T_RING_GROUP_LOCAL, self::T_RING_LOCAL_REGULAR, $lid);
-            }
+            $leagues_to_assign = !empty($input['def_leagues']) 
+				? $input['def_leagues'] 
+				: $settings['default_leagues'];
+
+			foreach ($leagues_to_assign as $lid) {
+				$status &= $newCoach->setRing(self::T_RING_GROUP_LOCAL, self::T_RING_LOCAL_REGULAR, $lid);
+			}
         }
         return $status ? $cid : false;
     }

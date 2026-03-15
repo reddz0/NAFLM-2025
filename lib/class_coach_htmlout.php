@@ -55,7 +55,7 @@ class Coach_HTMLOUT extends Coach
 		echo $lng->getTrn('common/page').': '.implode(', ', array_map(create_function('$nr', 'global $page; return ($nr == $page) ? $nr : "<a href=\''.$_url.'page=$nr\'>$nr</a>";'), range(1,$pages)));
 		echo '</td></td>';
 		echo "<tr><td>".$lng->getTrn('common/coaches').": $cnt</td></td>";
-		echo '</table>\n';
+		echo '</table>';
 		echo "</div>\n";
 		echo '</center><br>';
 		$queryGet .= ' LIMIT '.(($page-1)*T_HTML_COACHES_PER_PAGE).', '.(($page)*T_HTML_COACHES_PER_PAGE);

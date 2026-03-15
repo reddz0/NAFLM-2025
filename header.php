@@ -29,11 +29,11 @@ $credits = array(	'Pierluigi Masia',
 					'Goiz Ruiz de Gopegui',
 					'Ryan Williams',
 					'Ian Williams');
-define('NAFLM_VERSION', '2025.2');
-define('NAFLM_BUILD_DATE', '10th January 2026');
+define('NAFLM_VERSION', '2025.3');
+define('NAFLM_BUILD_DATE', '15th March 2026');
 define('CONTENT_VERSION', 'Blood Bowl 2025 - Third Season');
-define('CONTENT_DETAIL', 'Blood Bowl 2025 and up to and including Spike! #20');
-define('CONTENT_DATE', 'January 2026');
+define('CONTENT_DETAIL', 'Blood Bowl 2025 and up to and including Spike! #21');
+define('CONTENT_DATE', 'March 2026');
 $naflmcredits = array(	
 						'Val Catella',
 						'Anthony Baez',
@@ -168,6 +168,25 @@ if (defined('T_NO_STARTUP')) {
 } else {
     $conn = mysql_up(defined('T_NO_TBL_CHK') ? !T_NO_TBL_CHK : true); # MySQL connect.
     setupGlobalVars(T_SETUP_GLOBAL_VARS__COMMON);
+    
+    // Apply league-specific inducement cost overrides
+    if (isset($rules['prayer_cost']) && $rules['prayer_cost'] > 0) {
+        if (isset($inducements['Prayers to Nuffle'])) {
+            $inducements['Prayers to Nuffle']['cost'] = $rules['prayer_cost'];
+            $inducements['Prayers to Nuffle']['reduced_cost'] = $rules['prayer_cost'];
+        }
+    }
+	
+	// Apply mega star tax to all mega stars
+    if (isset($rules['megastar_tax']) && $rules['megastar_tax'] > 0) {
+        foreach ($stars as $starName => &$starData) {
+            if (isset($starData['megastar']) && $starData['megastar'] == 1) {
+                $starData['cost'] += $rules['megastar_tax'];
+            }
+        }
+        unset($starData); // Break reference
+    }
+    
     require_once('modules/modsheader.php'); # Registration of modules.
     setupGlobalVars(T_SETUP_GLOBAL_VARS__POST_LOAD_MODULES);
 	
