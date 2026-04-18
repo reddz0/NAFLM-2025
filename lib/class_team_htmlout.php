@@ -549,6 +549,22 @@ class Team_HTMLOUT extends Team
 							}
 						}
 					}
+					// Also include default/positional skills (e.g. Secret Weapon, Chainsaw)
+					foreach ($DEA[$team->f_rname]['players'] as $posName => $posDetails) {
+						if ($posDetails['pos_id'] == $p->f_pos_id) {
+							if (isset($posDetails['def'])) {
+								foreach ($posDetails['def'] as $skillId) {
+									if (isset($skillididx[$skillId])) {
+										$skillName = $skillididx[$skillId];
+										if (!in_array($skillName, $playerExistingSkills)) {
+											$playerExistingSkills[] = $skillName;
+										}
+									}
+								}
+							}
+							break;
+						}
+					}
 					
 					// Skill incompatibility rules
 					$incompatibleSkills = array(
@@ -558,9 +574,7 @@ class Team_HTMLOUT extends Team
 						'Grab' => array('Frenzy'),
 						'Multiple Block' => array('Frenzy'),
 						'Leap' => array('Pogo'),
-						'Pogo' => array('Leap'),
-						'Secret Weapon' => array('Saboteur'),
-						'Saboteur' => array('Secret Weapon')
+						'Pogo' => array('Leap')
 					);
 					
 					// Skill prerequisites (note: Throw Team-Mate is Extraordinary and can only be a default skill)
@@ -568,7 +582,8 @@ class Team_HTMLOUT extends Team
 						'Bullseye' => array('Throw Team-Mate'),
 						'Strong Arm' => array('Throw Team-Mate'),
 						'Lethal Flight' => array('Right Stuff'),
-						'Violent Innovator' => array('Bombardier', 'Ball & Chain', 'Breathe Fire', 'Chainsaw', 'Stab', 'Projectile Vomit')
+						'Violent Innovator' => array('Bombardier', 'Ball & Chain', 'Breathe Fire', 'Chainsaw', 'Stab', 'Projectile Vomit'),
+						'Saboteur' => array('Secret Weapon')						
 					);
 					
 					// Function to check if skill is compatible
@@ -1698,49 +1713,106 @@ class Team_HTMLOUT extends Team
 								 * Remove achieved skills
 								 **************/
 								case 'ach_skills':
-									echo $lng->getTrn('profile/team/box_admin/desc/ach_skills');
-									?>
-									<hr><br>
-									<?php echo $lng->getTrn('common/player');?>:<br>
-									<select name="player">
-									<?php
-									$DISABLE = true;
-									foreach ($players as $p) {
-										if (!$p->is_dead && !$p->is_sold) {
-											echo "<option value='$p->player_id'>$p->nr $p->name</option>\n";
-											$DISABLE = false;
+								echo $lng->getTrn('profile/team/box_admin/desc/ach_skills');
+								?>
+								<hr><br>
+								<?php
+								// Build a map of player_id -> their achieved skills (normal/double) and stat improvements
+								$playerAchSkills = array();
+								foreach ($players as $p) {
+									if ($p->is_dead || $p->is_sold) continue;
+									$achSkills = array();
+									$seen = array();
+									// Normal (primary) achieved skills
+									foreach ($p->ach_nor_skills as $skillId) {
+										if (isset($seen[$skillId])) continue;
+										foreach ($skillarray as $cat => $skills) {
+											if ($cat === 'E') continue;
+											if (isset($skills[$skillId])) {
+												$achSkills[] = array('value' => (string)$skillId, 'label' => $skills[$skillId] . ' (primary)');
+												$seen[$skillId] = true;
+												break;
+											}
 										}
 									}
-									?>
-									</select>
-									<br><br>
-									Skill<br>
-									<select name="skill">
-									<?php
-									foreach ($skillarray as $cat => $skills) {
-										if ($cat === 'E') continue;
-										echo "<OPTGROUP LABEL='$cat'>";
-										foreach ($skills as $id => $skill) {
-											//if (stripos($skill, 'hatred') !== false) continue;
-											echo "<option value='$id'>$skill</option>";
+									// Secondary (double) achieved skills
+									foreach ($p->ach_dob_skills as $skillId) {
+										if (isset($seen[$skillId])) continue;
+										foreach ($skillarray as $cat => $skills) {
+											if ($cat === 'E') continue;
+											if (isset($skills[$skillId])) {
+												$achSkills[] = array('value' => (string)$skillId, 'label' => $skills[$skillId] . ' (secondary)');
+												$seen[$skillId] = true;
+												break;
+											}
 										}
-										echo "</OPTGROUP>";
 									}
-									echo "<optgroup label='Characteristic improvement'>\n";
+									// Characteristic improvements
 									foreach ($CHR_CONV as $key => $name) {
-										if  ($name == 'ma' || $name == 'av' || $name == 'st' ) {
-										echo "<option value='ach_$key'>+ ".ucfirst($name)."</option>\n";
+										$isImproved = false;
+										if ($name == 'ma' || $name == 'st' || $name == 'av') {
+											$isImproved = ($p->$name > $p->{"def_$name"});
+										} else {
+											$defVal = $p->{"def_$name"};
+											$isImproved = ($defVal > 0 && $p->$name < $defVal);
 										}
-										else {
-										echo "<option value='ach_$key'>- ".ucfirst($name)."</option>\n";	
+										if ($isImproved) {
+											$label = ($name == 'ma' || $name == 'av' || $name == 'st') ? '+ '.ucfirst($name) : '- '.ucfirst($name);
+											$achSkills[] = array('value' => 'ach_'.$key, 'label' => $label . ' (stat)');
 										}
 									}
-									echo "</optgroup>\n";
-									?>
-									</select>
-									<input type="hidden" name="type" value="ach_skills">
-									<?php
-									break;
+									$playerAchSkills[$p->player_id] = $achSkills;
+								}
+								?>
+								<script>
+								var achSkillsByPlayer = <?php echo json_encode($playerAchSkills); ?>;
+
+								function updateAchSkillDropdown() {
+									var playerId = document.getElementById('ach_skills_player').value;
+									var skillSelect = document.getElementById('ach_skills_skill');
+									skillSelect.innerHTML = '';
+
+									var skills = achSkillsByPlayer[playerId] || [];
+									if (skills.length === 0) {
+										var opt = document.createElement('option');
+										opt.value = '';
+										opt.textContent = '-- No achieved skills --';
+										skillSelect.appendChild(opt);
+										return;
+									}
+
+									skills.forEach(function(s) {
+										var opt = document.createElement('option');
+										opt.value = s.value;
+										opt.textContent = s.label;
+										skillSelect.appendChild(opt);
+									});
+								}
+								</script>
+
+								<?php echo $lng->getTrn('common/player');?>:<br>
+								<select name="player" id="ach_skills_player" onchange="updateAchSkillDropdown()">
+								<?php
+								$DISABLE = true;
+								foreach ($players as $p) {
+									if (!$p->is_dead && !$p->is_sold) {
+										echo "<option value='$p->player_id'>$p->nr $p->name</option>\n";
+										$DISABLE = false;
+									}
+								}
+								?>
+								</select>
+								<br><br>
+								Skill<br>
+								<select name="skill" id="ach_skills_skill">
+								</select>
+								<input type="hidden" name="type" value="ach_skills">
+								<script>
+								// Populate on initial load
+								updateAchSkillDropdown();
+								</script>
+								<?php
+								break;
 								/***************
 								 * Manage Player Hatred
 								 **************/
@@ -2481,7 +2553,17 @@ class Team_HTMLOUT extends Team
 					alert('Please select a skill category');
 					return;
 				}
+
+				// NEW: Confirmation before rolling
+				const playerSelect = document.getElementById('random_skill_player');
+				const skillCatSelect = document.getElementById('random_skill_cat');
+				const playerName = playerSelect.options[playerSelect.selectedIndex].text;
+				const catName = skillCatSelect.options[skillCatSelect.selectedIndex].text;
 				
+				if (!confirm('Rolling a random Primary skill for\n\nPlayer: ' + playerName + '\nCategory: ' + catName + '\n\nAre you sure? This cannot be undone!')) {
+					return;
+				}
+
 				// Show loading in modal
 				const modal = document.getElementById('skill_selection_modal');
 				const skillOptions = document.getElementById('skill_options');

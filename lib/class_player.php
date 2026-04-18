@@ -240,7 +240,11 @@ class Player
 		}
 		if (!$hasViolentInnovatorPrereq) {
 			$illegal_skills = array_merge($illegal_skills, array('37')); // add violent innovator to illegal skills if they have NONE of the prereqs
-		}		
+		}
+		// Check if player has Saboteur prerequisite (needs Secret Weapon, ID=105)
+		if (!in_array('105', $current_skills)) {
+			$illegal_skills = array_merge($illegal_skills, array('36')); // add Saboteur to illegal skills if they don't have Secret Weapon
+		}
         foreach ($illegal_skills_arr as $hasSkill => $dropSkills) {
             $illegal_skills = array_merge($illegal_skills, $dropSkills);
         }

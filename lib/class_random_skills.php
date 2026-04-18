@@ -21,9 +21,7 @@ class BloodBowlSkillRoller {
         'Grab' => array('Frenzy'),
         'Multiple Block' => array('Frenzy'),
         'Leap' => array('Pogo'),
-        'Pogo' => array('Leap'),
-        'Secret Weapon' => array('Saboteur'),
-        'Saboteur' => array('Secret Weapon')
+        'Pogo' => array('Leap')
     );
     
     // Skill prerequisites (must have one of these skills first)
@@ -31,7 +29,8 @@ class BloodBowlSkillRoller {
         'Bullseye' => array('Throw Team-Mate'),
         'Strong Arm' => array('Throw Team-Mate'),
         'Lethal Flight' => array('Right Stuff'),
-        'Violent Innovator' => array('Bombardier', 'Ball & Chain', 'Breathe Fire', 'Chainsaw', 'Stab', 'Projectile Vomit')
+        'Violent Innovator' => array('Bombardier', 'Ball & Chain', 'Breathe Fire', 'Chainsaw', 'Stab', 'Projectile Vomit'),
+        'Saboteur' => array('Secret Weapon')
     );
     
     // Blood Bowl Random Skill Table Mappings

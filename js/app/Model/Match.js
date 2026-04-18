@@ -66,7 +66,7 @@ var Match = function(playersOnSelectedTeam) {
             },
             success: function(result) {
                 try {
-                    if(result === 'You must be logged into OBBLM to use this webservice.') {
+                    if(result === 'You must be logged into NAFLM to use this webservice.') {
                         alert('Your session has expired. Login and check "Remember me" to prevent this.');
                         return;
                     }
