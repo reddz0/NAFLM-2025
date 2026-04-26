@@ -40,7 +40,7 @@ class SQLCore
 				$query = "INSERT INTO $players(
 						pos_id,f_race_id,pos,cost,qty,ma,st,ag,pa,av,skills,norm,doub,is_bigguy,pos_type,keywords
 					) VALUES (
-						$PD[pos_id], ".$race_details['other']['race_id'].", '".mysql_real_escape_string($player_name)."', $PD[cost], $PD[qty], $PD[ma],$PD[st],$PD[ag],$PD[pa],$PD[av], '".implode(',',$PD['def'])."', '".implode('',$PD['norm'])."', '".implode('',$PD['doub'])."',$PD[is_bigguy],'".mysql_real_escape_string($PD[pos_type])."','".implode(',',$PD['keyword'])."'
+						$PD[pos_id], ".$race_details['other']['race_id'].", '".mysql_real_escape_string($player_name)."', $PD[cost], $PD[qty], $PD[ma],$PD[st],$PD[ag],$PD[pa],$PD[av], '".implode(',',$PD['def'])."', '".implode('',$PD['norm'])."', '".implode('',$PD['doub'])."',$PD[is_bigguy],'".mysql_real_escape_string($PD['pos_type'])."','".implode(',',$PD['keyword'])."'
 					)";
 				$status &= mysql_query($query);
 			}
