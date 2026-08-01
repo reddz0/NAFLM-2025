@@ -48,16 +48,16 @@ class Coach_HTMLOUT extends Coach
 		global $page;
 		$page = (isset($_GET['page']) && $_GET['page'] <= $pages) ? $_GET['page'] : 1; # Page 1 is default, of course.
 		$_url = "?section=coachlist&amp;";
-		echo '<br><center><table>';
 		echo "<div class='tableResponsive'>\n";
+		echo '<br><center><table>';
 		echo "<table>\n";
 		echo '<tr><td>';
 		echo $lng->getTrn('common/page').': '.implode(', ', array_map(create_function('$nr', 'global $page; return ($nr == $page) ? $nr : "<a href=\''.$_url.'page=$nr\'>$nr</a>";'), range(1,$pages)));
 		echo '</td></td>';
 		echo "<tr><td>".$lng->getTrn('common/coaches').": $cnt</td></td>";
 		echo '</table>';
-		echo "</div>\n";
 		echo '</center><br>';
+		echo "</div>\n";
 		$queryGet .= ' LIMIT '.(($page-1)*T_HTML_COACHES_PER_PAGE).', '.(($page)*T_HTML_COACHES_PER_PAGE);
 		
 		$coaches = array();
