@@ -133,13 +133,13 @@ class Stats
 				array_push($ret, $r);
 			}
 		}
-		if (!empty($N)) {
-			$query_cnt = str_replace($LIMIT, '', $query);
-			$result = mysql_query($query_cnt); 
-			$pages = ceil(mysql_num_rows($result)/$delta);
-		} else {
+		#if (!empty($N)) {
+		#	$query_cnt = str_replace($LIMIT, '', $query);
+		#	$result = mysql_query($query_cnt); 
+		#	$pages = ceil(mysql_num_rows($result)/$delta);
+		#} else {
 			$pages = 1;
-		}
+		#}
 		return array($ret, $pages);
 	}
 
