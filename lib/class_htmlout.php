@@ -895,6 +895,7 @@ class HTMLOUT
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 			<title><?php echo $settings['site_name']; ?></title>
+			<link rel="icon" type="image/x-icon" href="favicon.ico">
 			<link type="text/css" href="css/stylesheet_default.css" rel="stylesheet">
 			<link type="text/css" href="css/stylesheet<?php echo $settings['stylesheet']; ?>.css" rel="stylesheet">
 			<link type="text/css" href="css/league_override_<?php echo self::getSelectedNodeLidOrDefault(); ?>.css" rel="stylesheet">
@@ -948,6 +949,7 @@ class HTMLOUT
 			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 			<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 			<title><?php echo $settings['site_name']; ?></title>
+			<link rel="icon" type="image/x-icon" href="favicon.ico">
 			<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/themes/smoothness/jquery-ui.css">
 			<link type="text/css" href="css/stylesheet_default.css" rel="stylesheet">
 			<link type="text/css" href="css/stylesheet<?php echo $settings['stylesheet']; ?>.css" rel="stylesheet">
@@ -998,7 +1000,7 @@ class HTMLOUT
 		<!-- Following HTML from ./lib/class_htmlout.php make_menu -->
 		<ul class="css3menu1 topmenu">
 			
-			<li class="topfirst"><a href="#"><?php echo $lng->getTrn('menu/home');?></a>
+			<li class="topfirst"><a href="index.php"><?php echo $lng->getTrn('menu/home');?></a>
 			 <ul>
 				<li><a href="index.php?section=main">Home Page</a></li>
 				<?php 
@@ -1020,6 +1022,7 @@ class HTMLOUT
 					echo '<li><a href="index.php?SLS_lid=1" >League Hosting Home</a></li>';
 				} ?>
 				<li><a href="index.php?section=about">About NAFLM</a></li>
+				<li><a href="https://reddz.com/snbbl2020" target="_blank">LEGACY 2020-2025 SITE</a></li>
 			</ul>
 		</li>
 		<?php
@@ -1195,11 +1198,12 @@ class HTMLOUT
 				</ul></li>
 			<li><a href="index.php?section=sequence" >Pre & Post Match Sequence</a></li>
 			<li><a href="index.php?section=cheatsheet" >Cheat Sheet</a></li>
-			<li><a href="handler.php?type=tournamentteam&obj=builder" >Tournament Team Builder</a></li>
-			<li><a href="handler.php?type=calculator" >Dice Probability Calculator</a></li>
+			<!--<li><a href="handler.php?type=tournamentteam&obj=builder" >Tournament Team Builder</a></li>
+			<li><a href="handler.php?type=calculator" >Dice Probability Calculator</a></li>-->
 			<li><a href="https://assets.warhammer-community.com/eng_20-05_blood_bowl_faq_errata-gytvlserev-ngihd3chox.pdf">BB2025 Latest FAQ & Errata</a></li>
-			<li><a href="https://www.thenaf.net/wp-content/uploads/2026/08/NAF-FAQ-for-BB2025_v20260810_A4.pdf">BB2025 NAF Tournament Clarifications</a></li>
+			<!--<li><a href="https://www.thenaf.net/wp-content/uploads/2026/08/NAF-FAQ-for-BB2025_v20260810_A4.pdf">BB2025 NAF Tournament Clarifications</a></li>-->
 			<li><a href="NAFLM_2025_Coach_and_Administrator_Guide.pdf" TARGET="_blank">NAFLM Guide</a></li>
+			<li><a href="resources/Blood_Bowl_Roster_blank.pdf" style="height:10px;line-height:10px;" target="_blank">Blank Printable Roster</a></li>
 		</ul>
 	</li>  
 

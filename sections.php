@@ -11,7 +11,7 @@ function getFormAction($params) {
 function sec_login() {
     global $lng, $settings;
     $_URL_forgotpass = "index.php?section=login&amp;forgotpass=1";
-    if (isset($_GET['forgotpass'])) {
+    if (isset($_GET['forgotpass_DONOTUSE'])) {
         if (!isset($_POST['_retry'])) {
             title($lng->getTrn('login/forgotpass'));
         }
@@ -84,9 +84,10 @@ function sec_login() {
             if(!Mobile::isMobile()) {
                 if (Module::isRegistered('Registration') && $settings['allow_registration']) {
                     echo "<a href='handler.php?type=registration'><b>Register</b></a>";
+					echo "<br><br>";
+					echo "<a href='$_URL_forgotpass'><b>".$lng->getTrn('login/forgotpass').'</b></a>';
                 }  
-                echo "<br><br>";
-                echo "<a href='$_URL_forgotpass'><b>".$lng->getTrn('login/forgotpass').'</b></a>';
+				echo "Please contact a league commissioner <br>to register or reset your password.";
             }
             ?>
             </div>
@@ -1511,20 +1512,24 @@ function sec_sequence() {
 			<th style="width: 158.047px;" align="left">Post-Game</th>
 			</tr>
 			<tr>
-			<td style="width: 117.422px;">Inducements</td>
+			<td style="width: 117.422px;"><em>Expensive Mistakes</em></td>
 			<td style="width: 158.047px;">Winnings</td>
 			</tr>
 			<tr>
-			<td style="width: 117.422px;">Fan Factor</td>
+			<td style="width: 117.422px;">Inducements</td>
 			<td style="width: 158.047px;">Dedicated Fans</td>
 			</tr>
 			<tr>
-			<td style="width: 117.422px;">Weather</td>
+			<td style="width: 117.422px;">Fan Factor</td>
 			<td style="width: 158.047px;">MVP (D6)</td>
 			</tr>
 			<tr>
+			<td style="width: 117.422px;">Weather</td>
+			<td style="width: 158.047px;text-decoration:line-through">Expensive Mistakes</td>
+			</tr>
+			<tr>
 			<td style="width: 117.422px;">Kicking Team</td>
-			<td style="width: 158.047px;">Expensive Mistakes</td>
+			<td style="width: 158.047px;"><em>Roster Changes</em></td>
 			</tr>
 		</table>
 		</div>

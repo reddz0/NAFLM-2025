@@ -330,7 +330,7 @@ class Match
             WHERE matches.match_id = $this->match_id
             AND tours.tour_id = matches.f_tour_id
             AND divisions.did = tours.f_did");
-        if (!is_resource($result) || mysql_num_rows($result) == 0)
+        if (mysql_num_rows($result) == 0)
             return false;
         list($played_date, $lid) = mysql_fetch_row($result);
         if (empty($played_date))
